@@ -58,7 +58,7 @@ export class PublicApiConstruct extends Construct {
 
     props.userProfiles.grantWriteData(this.confirmLoginFn);
 
-    ['AdminGetUser', 'RespondToAuthChallenge'].forEach(action => {
+    ['AdminGetUser', 'AdminRespondToAuthChallenge'].forEach(action => {
       this.confirmLoginFn.addToRolePolicy(new PolicyStatement({
         actions: [`cognito-idp:${action}`],
         resources: [props.userPool.userPoolArn],
