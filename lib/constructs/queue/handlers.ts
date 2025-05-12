@@ -39,7 +39,7 @@ export class QueueHandlers extends Construct {
         OPENAI_SECRET_ARN: openAISecret.secretArn
       },
       memorySize: 1024,
-      timeout: Duration.minutes(5),
+      timeout: Duration.minutes(7),
     });
 
     openAISecret.grantRead(this.queueConsumerFn);

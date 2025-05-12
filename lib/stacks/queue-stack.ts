@@ -57,6 +57,7 @@ export class QueueAndStorageStack extends Stack {
 
     this.bucket.grantRead(this.s3ToQueueFn);
     this.bucket.grantRead(this.queueConsumerFn)
+    this.bucket.grantWrite(this.queueConsumerFn)
 
     this.s3ToQueueFn.addToRolePolicy(new PolicyStatement({
       actions: ['ses:SendEmail'],
