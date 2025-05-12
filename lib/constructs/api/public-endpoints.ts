@@ -1,8 +1,11 @@
 import { Construct } from 'constructs';
-import { Function, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import { SRC } from '../../utils/paths';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Duration } from 'aws-cdk-lib';
 
 interface PublicApiProps {
   userPool: cognito.UserPool;
@@ -11,31 +14,31 @@ interface PublicApiProps {
 }
 
 export class PublicApiConstruct extends Construct {
-  public readonly helloWorldFn: Function;
-  public readonly startLoginFn: Function;
-  public readonly confirmLoginFn: Function;
+  public readonly helloWorldFn: NodejsFunction;
+  public readonly startLoginFn: NodejsFunction;
+  public readonly confirmLoginFn: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: PublicApiProps) {
     super(scope, id);
 
-    const code = Code.fromAsset('../dist/functions/public');
-
-    this.helloWorldFn = new Function(this, 'HelloWorldFunction', {
+    this.helloWorldFn = new NodejsFunction(this, 'HelloWorldFunction', {
       runtime: Runtime.NODEJS_20_X,
-      handler: 'hello-world.handler',
-      code,
-      functionName: 'HelloWorldLambda',
-      description: 'Simple hello world Lambda',
+      entry: SRC('functions', 'public', 'hello-world.ts'),
+      handler: 'handler',
+      memorySize: 128,
+      timeout: Duration.seconds(2),
     });
 
-    this.startLoginFn = new Function(this, 'StartLoginFn', {
+    this.startLoginFn = new NodejsFunction(this, 'StartLoginFn', {
       runtime: Runtime.NODEJS_20_X,
-      handler: 'start-login.handler',
-      code,
+      entry: SRC('functions', 'public', 'start-login.ts'),
+      handler: 'handler',
       environment: {
         USER_POOL_ID: props.userPool.userPoolId,
         CLIENT_ID: props.userPoolClient.userPoolClientId,
       },
+      memorySize: 128,
+      timeout: Duration.seconds(8),
     });
 
     ['AdminInitiateAuth', 'AdminCreateUser', 'AdminGetUser'].forEach(action => {
@@ -45,15 +48,17 @@ export class PublicApiConstruct extends Construct {
       }));
     });
 
-    this.confirmLoginFn = new Function(this, 'ConfirmLoginFn', {
+    this.confirmLoginFn = new NodejsFunction(this, 'ConfirmLoginFn', {
       runtime: Runtime.NODEJS_20_X,
-      handler: 'confirm-login.handler',
-      code,
+      entry: SRC('functions', 'public', 'confirm-login.ts'),
+      handler: 'handler',
       environment: {
         CLIENT_ID: props.userPoolClient.userPoolClientId,
         USER_POOL_ID: props.userPool.userPoolId,
         USER_TABLE_NAME: props.userProfiles.tableName,
       },
+      memorySize: 128,
+      timeout: Duration.seconds(8),
     });
 
     props.userProfiles.grantWriteData(this.confirmLoginFn);

@@ -11,7 +11,7 @@ export class TaskQueue extends Construct {
     this.queue = new Queue(this, 'TaskQueue', {
       visibilityTimeout: Duration.seconds(300),
       retentionPeriod: Duration.days(4),
-      queueName: 'image-generation-queue',
+      queueName: 'image-generation-queue-v2',
     });
   }
 }
