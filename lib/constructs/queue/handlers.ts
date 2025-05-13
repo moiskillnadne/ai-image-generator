@@ -45,8 +45,7 @@ export class QueueHandlers extends Construct {
     openAISecret.grantRead(this.queueConsumerFn);
 
     this.queueConsumerFn.addEventSource(new SqsEventSource(props.queue, {
-      batchSize: 5,
-      maxBatchingWindow: Duration.seconds(30),
+      batchSize: 2,
     }));
 
     this.queueConsumerFn.addToRolePolicy(new PolicyStatement({

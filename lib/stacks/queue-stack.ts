@@ -15,6 +15,7 @@ import { LambdaDestination } from 'aws-cdk-lib/aws-s3-notifications';
 
 interface QueueAndStorageStackProps extends StackProps {
   userProfiles: Table;
+  tasksTable: Table;
 }
 
 export class QueueAndStorageStack extends Stack {
@@ -51,11 +52,13 @@ export class QueueAndStorageStack extends Stack {
         NOTIFY_EMAIL: TO_EMAIL,
         SENDER_EMAIL: FROM_EMAIL,
         USER_TABLE_NAME: props.userProfiles.tableName,
+        TASK_TABLE_NAME: props.tasksTable.tableName,
       },
       timeout: Duration.seconds(30),
     });
 
     this.bucket.grantRead(this.s3ToQueueFn);
+
     this.bucket.grantRead(this.queueConsumerFn)
     this.bucket.grantWrite(this.queueConsumerFn)
 
@@ -65,7 +68,8 @@ export class QueueAndStorageStack extends Stack {
     }));
 
     this.taskQueue.grantSendMessages(this.s3ToQueueFn);
-
+    
+    props.tasksTable.grantWriteData(this.s3ToQueueFn);
     props.userProfiles.grantReadData(this.s3ToQueueFn);
 
     this.bucket.addEventNotification(

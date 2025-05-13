@@ -9,7 +9,7 @@ export class TaskQueue extends Construct {
     super(scope, id);
 
     this.queue = new Queue(this, 'TaskQueue', {
-      visibilityTimeout: Duration.seconds(300),
+      visibilityTimeout: Duration.seconds(600),
       retentionPeriod: Duration.days(4),
       queueName: 'image-generation-queue-v2',
     });

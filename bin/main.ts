@@ -12,6 +12,7 @@ const dbStack = new DatabaseStack(app, 'DatabaseStack');
 
 const queueAndStorageStack = new QueueAndStorageStack(app, 'QueueAndStorageStack', {
   userProfiles: dbStack.userProfiles,
+  tasksTable: dbStack.tasksTable,
 });
 
 new ApiStack(app, 'ApiStack', {
